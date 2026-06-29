@@ -1,8 +1,12 @@
-
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
-local CoreGui = game:GetService("CoreGui")
+
+-- Xử lý an toàn CoreGui để không bị sập script trên mobile
+local CoreGui = nil
+pcall(function()
+    CoreGui = game:GetService("CoreGui")
+end)
 
 local LocalPlayer = Players.LocalPlayer
 local Mouse = LocalPlayer:GetMouse()
@@ -57,6 +61,7 @@ local function findNearestPlayer()
     return closestTarget
 end
 
+-- Hook Metatable hệ thống
 local mt = getrawmetatable(game)
 local oldIndex = mt.__index
 local oldNamecall = mt.__namecall
@@ -104,15 +109,16 @@ end)
 
 setreadonly(mt, true)
 
+-- Tạo GUI Menu kéo thả mượt mà
 local function createUI()
     local screenGui = Instance.new("ScreenGui")
     screenGui.Name = "AimAssistGUI"
     screenGui.ResetOnSpawn = false
     
-    local success, err = pcall(function()
+    -- Ưu tiên nhét vào CoreGui, nếu lỗi thì đẩy vào PlayerGui
+    if CoreGui then
         screenGui.Parent = CoreGui
-    end)
-    if not success then
+    else
         screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
     end
     
@@ -189,6 +195,7 @@ end
 
 createUI()
 
+-- Vòng lặp tối ưu quét mục tiêu và ép kích thước Hitbox
 RunService.Heartbeat:Connect(function()
     if AimAssistEnabled then
         local currentTime = os.clock()
@@ -221,5 +228,6 @@ RunService.Heartbeat:Connect(function()
         end
     else
         CurrentTarget = nil
+        cleanAllHitboxes() -- Khôi phục hitbox của mọi người chơi ngay khi tắt AIM
     end
 end)
