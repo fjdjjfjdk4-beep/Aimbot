@@ -1,8 +1,18 @@
+task.spawn(function()
+    local dots = {"", ".", "..", "..."}
+    for i = 1, 12 do
+        print("Loading" .. dots[(i % 4) + 1])
+        task.wait(0.25)
+    end
+    print("✨ Load Script Thanh Cong! ✨")
+end)
+
+task.wait(3)
+
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 
--- Xử lý an toàn CoreGui để không bị sập script trên mobile
 local CoreGui = nil
 pcall(function()
     CoreGui = game:GetService("CoreGui")
@@ -61,7 +71,6 @@ local function findNearestPlayer()
     return closestTarget
 end
 
--- Hook Metatable hệ thống
 local mt = getrawmetatable(game)
 local oldIndex = mt.__index
 local oldNamecall = mt.__namecall
@@ -109,13 +118,11 @@ end)
 
 setreadonly(mt, true)
 
--- Tạo GUI Menu kéo thả mượt mà
 local function createUI()
     local screenGui = Instance.new("ScreenGui")
     screenGui.Name = "AimAssistGUI"
     screenGui.ResetOnSpawn = false
     
-    -- Ưu tiên nhét vào CoreGui, nếu lỗi thì đẩy vào PlayerGui
     if CoreGui then
         screenGui.Parent = CoreGui
     else
@@ -195,7 +202,6 @@ end
 
 createUI()
 
--- Vòng lặp tối ưu quét mục tiêu và ép kích thước Hitbox
 RunService.Heartbeat:Connect(function()
     if AimAssistEnabled then
         local currentTime = os.clock()
@@ -228,6 +234,6 @@ RunService.Heartbeat:Connect(function()
         end
     else
         CurrentTarget = nil
-        cleanAllHitboxes() -- Khôi phục hitbox của mọi người chơi ngay khi tắt AIM
+        cleanAllHitboxes()
     end
 end)
